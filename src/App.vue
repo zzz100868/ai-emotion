@@ -1,4 +1,6 @@
-<!-- 根组件：负责渲染当前路由匹配的页面，并包裹全局转场动画 -->
+<script setup lang="ts">
+</script>
+
 <template>
   <RouterView v-slot="{ Component }">
     <transition name="page" mode="out-in">

@@ -1,10 +1,15 @@
-<script setup>
-// 应用的通用外层布局：左侧边栏导航 + 右侧主内容区
-// 所有需要登录的页面都会嵌套在这个布局中
-
-import { computed, onBeforeUnmount, onMounted } from 'vue'
-import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
-import { Bot, ChartNoAxesCombined, ClipboardList, LogOut, MessageCircle, Settings, Table2 } from 'lucide-vue-next'
+<script setup lang="ts">
+import {
+  ChatLineSquare,
+  DataAnalysis,
+  Document,
+  List,
+  Setting,
+  SwitchButton,
+} from '@element-plus/icons-vue'
+import { computed, markRaw, onBeforeUnmount, onMounted } from 'vue'
+import type { Component } from 'vue'
+import { RouterView, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useMoodStore } from '@/stores/mood'
 
@@ -13,8 +18,7 @@ const router = useRouter()
 const auth = useAuthStore()
 const mood = useMoodStore()
 
-// 收到 401 未授权事件时自动登出并跳回登录页
-function handleUnauthorized() {
+function handleUnauthorized(): void {
   auth.logout()
   router.push('/login')
 }
@@ -28,18 +32,28 @@ onBeforeUnmount(() => {
   window.removeEventListener('moodflow:unauthorized', handleUnauthorized)
 })
 
-// 根据当前用户角色动态计算导航项（admin 和普通用户看到不同的菜单）
-const navItems = computed(() => [
-  { to: '/chat', label: 'AI 对话', icon: MessageCircle, visible: auth.user.role === 'user' },
-  { to: `/reports/${mood.activeSession?.id || ''}`, label: '复盘', icon: ClipboardList, visible: auth.user.role === 'user' },
-  { to: '/dashboard', label: '情绪看板', icon: ChartNoAxesCombined, visible: auth.user.role === 'admin' },
-  { to: '/sessions', label: '会话管理', icon: Table2, visible: auth.user.role === 'admin' },
-  { to: '/settings', label: '系统设置', icon: Settings, visible: true },
+interface NavItem {
+  to: string
+  label: string
+  icon: Component
+  visible: boolean
+}
+
+const navItems = computed<NavItem[]>(() => [
+  { to: '/chat', label: 'AI 对话', icon: markRaw(ChatLineSquare), visible: auth.user.role === 'user' },
+  { to: `/reports/${mood.activeSession?.id || ''}`, label: '复盘', icon: markRaw(Document), visible: auth.user.role === 'user' },
+  { to: '/dashboard', label: '情绪看板', icon: markRaw(DataAnalysis), visible: auth.user.role === 'admin' },
+  { to: '/sessions', label: '会话管理', icon: markRaw(List), visible: auth.user.role === 'admin' },
+  { to: '/settings', label: '系统设置', icon: markRaw(Setting), visible: true },
 ].filter((item) => item.visible))
 
 const homePath = computed(() => auth.user.role === 'admin' ? '/dashboard' : '/chat')
 
-function logout() {
+function handleMenuSelect(index: string): void {
+  router.push(index)
+}
+
+function logout(): void {
   auth.logout()
   router.push('/login')
 }
@@ -48,28 +62,25 @@ function logout() {
 <template>
   <div class="app-shell">
     <aside class="side-rail">
-      <RouterLink :to="homePath" class="brand-mark" aria-label="MoodFlow">
-        <Bot :size="25" />
-      </RouterLink>
+      <router-link :to="homePath" class="brand-mark" aria-label="MoodFlow">
+        <strong>MF</strong>
+      </router-link>
 
-      <nav class="rail-nav">
-        <RouterLink
-          v-for="item in navItems"
-          :key="item.to"
-          :to="item.to"
-          class="rail-link"
-          :class="{ active: route.path === item.to }"
-          :title="item.label"
-        >
-          <component :is="item.icon" :size="21" />
-          <span>{{ item.label }}</span>
-        </RouterLink>
-      </nav>
+      <el-menu
+        :default-active="route.path"
+        :collapse="true"
+        class="rail-menu"
+        @select="handleMenuSelect"
+      >
+        <el-menu-item v-for="item in navItems" :key="item.to" :index="item.to">
+          <el-icon><component :is="item.icon" /></el-icon>
+          <template #title>{{ item.label }}</template>
+        </el-menu-item>
+      </el-menu>
 
-      <button class="rail-link logout-btn" type="button" title="退出登录" @click="logout">
-        <LogOut :size="20" />
-        <span>退出</span>
-      </button>
+      <el-button class="logout-btn" text :icon="SwitchButton" @click="logout">
+        退出
+      </el-button>
     </aside>
 
     <main class="app-main">
@@ -77,3 +88,49 @@ function logout() {
     </main>
   </div>
 </template>
+
+<style scoped>
+.app-shell {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  min-height: 100vh;
+}
+.side-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+  border-right: 1px solid var(--el-border-color-lighter);
+  background: var(--el-bg-color);
+}
+.brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--el-color-primary);
+  color: #fff;
+  font-size: 15px;
+  text-decoration: none;
+  margin-bottom: 12px;
+}
+.rail-menu {
+  border-right: none !important;
+  flex: 1;
+}
+.rail-menu .el-menu-item {
+  height: 48px;
+  line-height: 48px;
+}
+.logout-btn {
+  margin-top: auto;
+  color: var(--el-text-color-secondary);
+}
+.app-main {
+  overflow-y: auto;
+  padding: 24px 32px;
+  background: var(--el-fill-color-blank);
+}
+</style>

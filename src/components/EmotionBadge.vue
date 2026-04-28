@@ -1,14 +1,27 @@
-<script setup>
-// 情绪标签组件：根据 label（情绪名）和 risk（风险等级）显示带样式的徽章
+<script setup lang="ts">
+import type { EmotionLabel, RiskLevel } from '@/types'
 
-defineProps({
-  label: { type: String, default: '平静' },
-  risk: { type: String, default: 'low' },
-})
+defineProps<{
+  label?: EmotionLabel
+  risk?: RiskLevel
+}>()
+
+const tagType: Record<string, 'danger' | 'warning' | 'success' | 'info' | ''> = {
+  焦虑: 'warning',
+  低落: 'danger',
+  平静: 'info',
+  积极: 'success',
+  愤怒: 'danger',
+}
 </script>
 
 <template>
-  <span class="emotion-badge" :class="[`emotion-${label}`, `risk-${risk}`]">
-    {{ label }}
-  </span>
+  <el-tag
+    :type="tagType[label || '平静'] || 'info'"
+    size="small"
+    :effect="risk === 'high' ? 'dark' : 'light'"
+    round
+  >
+    {{ label || '平静' }}
+  </el-tag>
 </template>

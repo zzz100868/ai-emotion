@@ -1,13 +1,11 @@
-<script setup>
-// Markdown 渲染组件：将纯文本消息转为 HTML，流式输出时在末尾追加闪烁光标
-
+<script setup lang="ts">
 import MarkdownIt from 'markdown-it'
 import { computed } from 'vue'
 
-const props = defineProps({
-  content: { type: String, default: '' },
-  streaming: { type: Boolean, default: false },
-})
+const props = defineProps<{
+  content?: string
+  streaming?: boolean
+}>()
 
 const md = new MarkdownIt({
   html: false,
@@ -17,7 +15,6 @@ const md = new MarkdownIt({
 
 const rendered = computed(() => md.render(props.content || ''))
 
-// 流式输出时，在最后一个闭合标签前插入光标元素，模拟打字效果
 const renderedWithCursor = computed(() => {
   if (!props.streaming) return rendered.value
   const cursor = '<span class="typing-cursor"></span>'

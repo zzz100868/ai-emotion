@@ -1,37 +1,40 @@
-<script setup>
-// 会话列表单项组件：展示会话标题、更新时间、情绪图标，支持点击切换、重命名和删除
-
-import { Pencil, Trash2 } from 'lucide-vue-next'
+<script setup lang="ts">
+import { Delete, Edit } from '@element-plus/icons-vue'
 import { nextTick, ref } from 'vue'
+import type { Session } from '@/types'
 import { formatDate } from '@/utils'
 
-const props = defineProps({
-  session: { type: Object, required: true },
-  active: { type: Boolean, default: false },
-  streaming: { type: Boolean, default: false },
-  canDelete: { type: Boolean, default: true },
-  title: { type: String, required: true },
-})
+const props = defineProps<{
+  session: Session
+  active?: boolean
+  streaming?: boolean
+  canDelete?: boolean
+  title: string
+}>()
 
-const emit = defineEmits(['select', 'rename', 'delete'])
+const emit = defineEmits<{
+  select: [id: string]
+  rename: [session: Session, title: string]
+  delete: [session: Session]
+}>()
+
 const editing = ref(false)
 const draftTitle = ref('')
-const inputRef = ref(null)
+const inputRef = ref<HTMLInputElement | null>(null)
 const cancelled = ref(false)
 
-// 根据会话报告的情绪标签返回对应图标字符
-function sessionMoodIcon(session) {
+function sessionMoodIcon(session: Session): string {
   const label = session.report?.label
-  return {
+  return ({
     焦虑: '☁',
     低落: '◐',
     平静: '♧',
     积极: '✦',
     愤怒: '◇',
-  }[label] || '✎'
+  } as Record<string, string>)[label || ''] || '✎'
 }
 
-async function startRename() {
+async function startRename(): Promise<void> {
   editing.value = true
   cancelled.value = false
   draftTitle.value = props.session.title
@@ -40,20 +43,20 @@ async function startRename() {
   inputRef.value?.select()
 }
 
-function cancelRename() {
+function cancelRename(): void {
   cancelled.value = true
   editing.value = false
   draftTitle.value = ''
 }
 
-function saveRename() {
+function saveRename(): void {
   if (!editing.value || cancelled.value) return
   emit('rename', props.session, draftTitle.value.trim())
   editing.value = false
   draftTitle.value = ''
 }
 
-function handleBlur() {
+function handleBlur(): void {
   if (cancelled.value) {
     cancelled.value = false
     return
@@ -71,10 +74,11 @@ function handleBlur() {
   >
     <span class="session-dot" :class="{ streaming }">{{ sessionMoodIcon(session) }}</span>
     <span v-if="editing" class="session-rename" @click.stop>
-      <input
+      <el-input
         ref="inputRef"
         v-model="draftTitle"
         maxlength="32"
+        size="small"
         @blur="handleBlur"
         @keydown.enter.prevent="saveRename"
         @keydown.esc="cancelRename"
@@ -83,17 +87,15 @@ function handleBlur() {
     <strong v-else>{{ title }}</strong>
     <span class="session-time">{{ streaming ? '生成中...' : formatDate(session.updatedAt) }}</span>
     <span v-if="!editing" class="session-actions-inline" @click.stop>
-      <button type="button" title="重命名" :disabled="streaming" @click="startRename">
-        <Pencil :size="14" />
-      </button>
-      <button
-        type="button"
-        title="删除"
+      <el-button text size="small" :icon="Edit" :disabled="streaming" circle @click="startRename" />
+      <el-button
+        text
+        size="small"
+        :icon="Delete"
         :disabled="!canDelete || streaming"
+        circle
         @click="emit('delete', session)"
-      >
-        <Trash2 :size="14" />
-      </button>
+      />
     </span>
   </button>
 </template>

@@ -1,41 +1,25 @@
-<script setup>
-/**
- * 图表组件：基于 ECharts 封装，支持三种图表类型
- * - line（默认）：情绪强度趋势折线图，带渐变面积填充
- * - pie：情绪分布饼图（环形图）
- * - bar：风险等级柱状图
- *
- * 使用方式：<TrendChart :reports="报告数组" type="pie|bar|line" />
- */
-
+<script setup lang="ts">
 import { BarChart, LineChart, PieChart } from 'echarts/charts'
 import { GraphicComponent, GridComponent, TooltipComponent } from 'echarts/components'
 import { graphic, init, use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
+import type { ECharts } from 'echarts/core'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import type { FilteredReport } from '@/types'
 
-// 注册 ECharts 所需的模块（tree-shaking 模式下必须手动注册）
 use([BarChart, LineChart, PieChart, GridComponent, TooltipComponent, GraphicComponent, CanvasRenderer])
 
-const props = defineProps({
-  // reports: 报告数组，每条报告需包含 { label, score, riskLevel, updatedAt }
-  reports: { type: Array, default: () => [] },
-  // type: 图表类型，'line' | 'bar' | 'pie'
-  type: { type: String, default: 'line' },
-})
+const props = defineProps<{
+  reports?: FilteredReport[]
+  type?: 'line' | 'bar' | 'pie'
+}>()
 
-// chartRef: 绑定到模板中 div 的 DOM 引用，ECharts 实例会挂载到这个 div 上
-const chartRef = ref(null)
-// chart: ECharts 实例对象，在 onMounted 中初始化
-let chart = null
+const chartRef = ref<HTMLDivElement | null>(null)
+let chart: ECharts | null = null
 
-/**
- * option: ECharts 配置对象（计算属性）
- * 根据 props.type 和 props.reports 的变化自动重新计算
- */
 const option = computed(() => {
-  // 无数据时显示占位文字
-  if (!props.reports.length) {
+  const reports = props.reports || []
+  if (!reports.length) {
     return {
       graphic: {
         type: 'text',
@@ -51,9 +35,8 @@ const option = computed(() => {
     }
   }
 
-  // 柱状图：统计各风险等级的报告数量
   if (props.type === 'bar') {
-    const levels = [
+    const levels: [string, string][] = [
       ['low', '低风险'],
       ['medium', '需关注'],
       ['high', '高风险'],
@@ -77,16 +60,14 @@ const option = computed(() => {
       series: [{
         type: 'bar',
         barWidth: 32,
-        // 统计每个风险等级对应的报告数量
-        data: levels.map(([level]) => props.reports.filter((item) => item.riskLevel === level).length),
+        data: levels.map(([level]) => reports.filter((item) => item.riskLevel === level).length),
         itemStyle: { borderRadius: [6, 6, 2, 2] },
       }],
     }
   }
 
-  // 饼图：统计各情绪标签的出现次数
   if (props.type === 'pie') {
-    const map = props.reports.reduce((acc, item) => {
+    const map = reports.reduce<Record<string, number>>((acc, item) => {
       acc[item.label] = (acc[item.label] || 0) + 1
       return acc
     }, {})
@@ -103,8 +84,7 @@ const option = computed(() => {
     }
   }
 
-  // 默认折线图：按更新时间排序展示情绪强度分数变化趋势
-  const sorted = [...props.reports].sort((a, b) => a.updatedAt - b.updatedAt)
+  const sorted = [...reports].sort((a, b) => a.updatedAt - b.updatedAt)
   return {
     grid: { left: 36, right: 18, top: 28, bottom: 28 },
     tooltip: { trigger: 'axis', backgroundColor: '#fff', borderColor: 'rgba(0,0,0,0.06)', textStyle: { color: '#1c1917' } },
@@ -138,8 +118,7 @@ const option = computed(() => {
   }
 })
 
-// 渲染/重新渲染图表：若实例不存在则初始化，否则清空后设置新配置
-function render() {
+function render(): void {
   if (!chartRef.value) return
   if (!chart) chart = init(chartRef.value)
   chart.clear()
@@ -148,16 +127,13 @@ function render() {
 
 onMounted(() => {
   render()
-  // 窗口大小变化时重新渲染，保证图表自适应容器宽度
   window.addEventListener('resize', render)
 })
 
-// 深度监听 option 变化：当 reports 数据或 type 改变时自动重绘
 watch(option, render, { deep: true })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', render)
-  // 销毁 ECharts 实例，释放内存
   chart?.dispose()
 })
 </script>
