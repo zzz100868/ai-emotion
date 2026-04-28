@@ -1,0 +1,41 @@
+{
+  "name": "moodflow",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node server/dev.js",
+    "dev:client": "vite",
+    "dev:api": "node server/index.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{js,vue,scss}\" \"server/**/*.js\" \"*.{js,json,md}\"",
+    "test:unit": "vitest run",
+    "check": "vue-tsc --noEmit",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "^1.15.1",
+    "echarts": "^6.0.0",
+    "lucide-vue-next": "^1.0.0",
+    "markdown-it": "^14.1.1",
+    "pinia": "^3.0.4",
+    "sass": "^1.99.0",
+    "vue": "^3.5.32",
+    "vue-router": "^5.0.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.6",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/test-utils": "^2.4.6",
+    "eslint": "^10.2.1",
+    "eslint-plugin-vue": "^10.8.0",
+    "jsdom": "^29.0.2",
+    "playwright-core": "^1.59.1",
+    "prettier": "^3.8.3",
+    "vite": "^8.0.9",
+    "vitest": "^4.1.4",
+    "vue-tsc": "^3.2.7"
+  }
+}

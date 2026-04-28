@@ -1,0 +1,244 @@
+// ============================================================
+// Responsive — Mobile-First Breakpoints
+// ============================================================
+
+@media (max-width: 1200px) {
+  .chat-grid {
+    grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.9fr);
+    height: auto;
+    gap: 0;
+  }
+
+  .insight-panel {
+    grid-column: 1 / -1;
+    min-height: 260px;
+    border-left: none;
+    border-top: 1px solid var(--surface-border);
+  }
+
+  .dashboard-grid,
+  .settings-grid,
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-card.wide {
+    grid-column: span 1;
+  }
+
+  .case-row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  .review-hero {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filter-bar {
+    grid-template-columns: minmax(0, 1fr) repeat(2, 130px) auto;
+  }
+}
+
+@media (max-width: 820px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .side-rail {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 10px 14px;
+    gap: 8px;
+    border-right: none;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .rail-nav {
+    flex-direction: row;
+    gap: 4px;
+  }
+
+  .rail-link {
+    width: 44px;
+    height: 44px;
+  }
+
+  .rail-link.active::before {
+    display: none;
+  }
+
+  .logout-btn {
+    margin-top: 0;
+    margin-left: auto;
+  }
+
+  .app-main {
+    padding: 20px;
+  }
+
+  .login-page,
+  .chat-grid,
+  .metric-grid,
+  .filter-bar,
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .login-page {
+    padding: 0;
+  }
+
+  .login-hero {
+    padding: 40px 28px;
+    min-height: auto;
+  }
+
+  .login-hero h1 {
+    font-size: 36px;
+  }
+
+  .login-panel {
+    padding: 32px 28px;
+    border-left: none;
+    border-top: 1px solid var(--surface-border);
+  }
+
+  .chat-grid {
+    height: auto;
+    gap: 0;
+    border-radius: var(--radius-lg);
+    overflow: visible;
+    border: none;
+    box-shadow: none;
+  }
+
+  .chat-panel {
+    margin: 0;
+    min-height: 600px;
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .session-panel {
+    max-height: 260px;
+    border-right: none;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .chat-header,
+  .page-header,
+  .panel-head {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .compact-table .table-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .case-row {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .dashboard-note,
+  .session-card-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .conversation-audit article {
+    grid-template-columns: 1fr;
+  }
+
+  .review-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .composer-privacy {
+    margin-left: 0;
+  }
+
+  .message-list {
+    padding: 20px 16px;
+  }
+
+  .chat-header h1 {
+    font-size: 17px;
+  }
+
+  .message-bubble {
+    max-width: 100%;
+    font-size: 15px;
+  }
+
+  .message-row,
+  .message-row.user,
+  .message-row.assistant {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .message-row.user {
+    grid-template-columns: minmax(0, 1fr) 28px;
+  }
+
+  .message-row.assistant {
+    grid-template-columns: 28px minmax(0, 1fr);
+  }
+
+  .avatar {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-main {
+    padding: 16px;
+  }
+
+  .login-hero h1 {
+    font-size: 28px;
+  }
+
+  .login-hero {
+    padding: 28px 20px;
+  }
+
+  .login-panel {
+    padding: 24px 20px;
+  }
+
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-header,
+  .composer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .message-list {
+    padding: 16px 12px;
+  }
+
+  .session-panel,
+  .insight-panel {
+    padding: 16px;
+  }
+}
